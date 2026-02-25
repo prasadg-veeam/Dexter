@@ -72,9 +72,13 @@ def test_delete_order_via_ui(driver, live_server):
     driver.find_element(By.ID, "price").send_keys("5.00")
     driver.find_element(By.ID, "add-btn").click()
     wait.until(EC.text_to_be_present_in_element((By.ID, "orders-body"), "ToDelete"))
-    # Delete the order
-    del_btn = driver.find_element(By.CSS_SELECTOR, ".del-btn")
-    del_btn.click()
-    time.sleep(0.5)
+    # Find and click the delete button in the "ToDelete" row specifically
+    rows = driver.find_elements(By.CSS_SELECTOR, "#orders-body tr")
+    for row in rows:
+        if "ToDelete" in row.text:
+            row.find_element(By.CSS_SELECTOR, ".del-btn").click()
+            break
+    # Wait for "ToDelete" to disappear from the table
+    wait.until(lambda d: "ToDelete" not in d.find_element(By.ID, "orders-body").text)
     rows = driver.find_elements(By.CSS_SELECTOR, "#orders-body tr")
     assert all("ToDelete" not in r.text for r in rows)
